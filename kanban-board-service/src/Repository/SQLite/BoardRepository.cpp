@@ -1,5 +1,6 @@
 #include "BoardRepository.hpp"
 #include "Core/Exception/NotImplementedException.hpp"
+#include <ctime>
 #include <filesystem>
 #include <string.h>
 
