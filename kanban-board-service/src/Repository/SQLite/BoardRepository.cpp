@@ -103,6 +103,7 @@ std::optional<Prog3::Core::Model::Column> BoardRepository::putColumn(int id, std
         "SET name = '" +
         name + "',\nposition = " + to_string(position) +
         "\n WHERE id = " + to_string(id);
+    //SHOULD CHECK WHETHER ID EVEN EXISTS SOMEWHERE HERE; SQL DOESN'T THROW AN ERROR IF IT DOESN'T
 
     int result = 0;
     char *errorMessage = nullptr;
@@ -111,7 +112,9 @@ std::optional<Prog3::Core::Model::Column> BoardRepository::putColumn(int id, std
     handleSQLError(result, errorMessage);
 
     if (SQLITE_OK == result) {
-        return Column(id, name, position);
+        Column rslt = Column(id, name, position);
+        //ADD COLUMNS ITEMS HERE? IDK?
+        return rslt;
     }
 
     return std::nullopt;
