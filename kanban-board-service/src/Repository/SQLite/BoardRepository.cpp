@@ -111,7 +111,7 @@ std::optional<Column> BoardRepository::getColumn(int id) {
     handleSQLError(result, errorMessage);
 
     for (auto item : tempItems) {
-        tempCols[0]->addItem(item);
+        tempCols[0].addItem(item);
     }
 
     if (result != SQLITE_OK || tempCols.size() == 0)
