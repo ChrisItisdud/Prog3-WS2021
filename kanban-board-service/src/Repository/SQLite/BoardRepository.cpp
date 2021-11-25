@@ -72,7 +72,7 @@ void BoardRepository::initialize() {
 
 Board BoardRepository::getBoard() {
     vector<Column> columns = getColumns();
-    Board board("");
+    Board board("Kanban Board");
     board.setColumns(columns);
     return board;
 }
