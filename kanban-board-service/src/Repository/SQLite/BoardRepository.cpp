@@ -82,7 +82,7 @@ std::vector<Column> BoardRepository::getColumns() {
     char *errorMessage = nullptr;
     vector<Column> tempCols;
     vector<Column> *columns = &tempCols;
-    int answer = sqlite3_exec(database, itemSqlSelect.c_str(), BoardRepository::getColumnsCallback, columns, &errorMessage);
+    int answer = sqlite3_exec(database, sqlSelect.c_str(), BoardRepository::getColumnsCallback, columns, &errorMessage);
     handleSQLError(answer, errorMessage);
 
     for (Column c : tempCols) {
@@ -111,13 +111,13 @@ std::optional<Column> BoardRepository::getColumn(int id) {
     handleSQLError(result, errorMessage);
 
     for (auto item : tempItems) {
-        column[0].addItem(item);
+        columns[0].addItem(item);
     }
 
-    if (result != SQLITE_OK || column.getId() == -1)
+    if (result != SQLITE_OK || columns.size() == 0)
         return nullopt;
 
-    return column[0];
+    return columns[0];
 }
 
 std::optional<Column> BoardRepository::postColumn(std::string name, int position) {
