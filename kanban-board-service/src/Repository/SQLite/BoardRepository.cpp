@@ -111,13 +111,13 @@ std::optional<Column> BoardRepository::getColumn(int id) {
     handleSQLError(result, errorMessage);
 
     for (auto item : tempItems) {
-        columns[0].addItem(item);
+        tempCols[0]->addItem(item);
     }
 
-    if (result != SQLITE_OK || columns.size() == 0)
+    if (result != SQLITE_OK || tempCols.size() == 0)
         return nullopt;
 
-    return columns[0];
+    return tempCols[0];
 }
 
 std::optional<Column> BoardRepository::postColumn(std::string name, int position) {
