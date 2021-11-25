@@ -12,7 +12,16 @@ using namespace rapidjson;
 using namespace std;
 
 string JsonParser::convertToApiString(Board &board) {
-    throw NotImplementedException();
+    Document document(kObjectType);
+    Value jsonColumn(kObjectType);
+    jsonColumn.AddMember("title", Value(board.getTitle().c_str(), document.GetAllocator()), document.GetAllocator());
+    Value jsonItems(kArrayType);
+    for (Column const &c : board.getColumns()) {
+        Value jsonItem = getJsonValueFromModel(c, document.GetAllocator());
+        jsonItems.PushBack(jsonItem, document.GetAllocator());
+    }
+    jsonColumn.AddMember("columns", jsonItems, document.GetAllocator());
+    return jsonValueToString(jsonColumn);
 }
 
 string JsonParser::convertToApiString(Column &column) {
@@ -61,20 +70,33 @@ string JsonParser::jsonValueToString(rapidjson::Value const &json) {
 }
 
 string JsonParser::convertToApiString(std::vector<Column> &columns) {
-    throw NotImplementedException();
+    string result = EMPTY_JSON;
+    Document document(kObjectType);
+    Value jsonItems(kArrayType);
+    for (Column const &c : columns) {
+        Value jsonItem = getJsonValueFromModel(c, document.GetAllocator());
+        jsonItems.PushBack(jsonItem, document.GetAllocator());
+    }
+    return jsonValueToString(jsonItems);
 }
 
 string JsonParser::convertToApiString(Item &item) {
     string result = EMPTY_JSON;
     Document document(kObjectType);
-
     Value jsonItem = getJsonValueFromModel(item, document.GetAllocator());
     result = jsonValueToString(jsonItem);
     return result;
 }
 
 string JsonParser::convertToApiString(std::vector<Item> &items) {
-    throw NotImplementedException();
+    string result = EMPTY_JSON;
+    Document document(kObjectType);
+    Value jsonItems(kArrayType);
+    for (Item const &i : items) {
+        Value jsonItem = getJsonValueFromModel(i, document.GetAllocator());
+        jsonItems.PushBack(jsonItem, document.GetAllocator());
+    }
+    return jsonValueToString(jsonItems);
 }
 
 std::optional<Column> JsonParser::convertColumnToModel(int columnId, std::string &request) {
