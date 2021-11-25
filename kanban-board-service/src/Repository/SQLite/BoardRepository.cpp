@@ -71,32 +71,53 @@ void BoardRepository::initialize() {
 }
 
 Board BoardRepository::getBoard() {
-    throw NotImplementedException();
+    vector<Column> columns = getColumns();
+    Board board("");
+    board.setColumns(columns);
+    return board;
 }
 
 std::vector<Column> BoardRepository::getColumns() {
-    throw NotImplementedException();
+    string sqlSelect = "SELECT * FROM column;";
+    char *errorMessage = nullptr;
+    vector<Column> tempCols;
+    vector<Column> *columns = &tempCols;
+    int answer = sqlite3_exec(database, itemSqlSelect.c_str(), BoardRepository::getColumnsCallback, columns, &errorMessage);
+    handleSQLError(answer, errorMessage);
+
+    for (Column c : tempCols) {
+        vector<Item> tempItems = getItems(c.getId());
+        for (auto item : tempItems) {
+            c.addItem(item);
+        }
+    }
+
+    if (answer != SQLITE_OK) {
+        vector<Column> emptyVector;
+        return emptyVector;
+    }
+    return tempCols;
 }
 
 std::optional<Column> BoardRepository::getColumn(int id) {
     string sqlSelect = "SELECT * FROM column WHERE id=" + to_string(id) + ";";
     char *errorMessage = nullptr;
     //this is done to reserve the needed memory
-    Column column(-1, "", 0);
-    Column *columnP = &column;
+    vector<Column> tempCols;
+    vector<Column> *columns = &tempCols;
     vector<Item> tempItems = getItems(id);
 
-    int result = sqlite3_exec(database, sqlSelect.c_str(), BoardRepository::getColumnCallback, columnP, &errorMessage);
+    int result = sqlite3_exec(database, sqlSelect.c_str(), BoardRepository::getColumnsCallback, columns, &errorMessage);
     handleSQLError(result, errorMessage);
 
     for (auto item : tempItems) {
-        column.addItem(item);
+        column[0].addItem(item);
     }
 
     if (result != SQLITE_OK || column.getId() == -1)
         return nullopt;
 
-    return column;
+    return column[0];
 }
 
 std::optional<Column> BoardRepository::postColumn(std::string name, int position) {
@@ -372,8 +393,8 @@ int BoardRepository::queryCallback(void *data, int numberOfColumns, char **field
 }
 
 // id:5,title:test,position:100;id:6,title:test2,postion101
-
-int BoardRepository::getColumnCallback(void *data, int numberOfColumns, char **fieldValues, char **columnNames) {
+//NOT NEEDED ATM; KEEPING IT HERE IN CASE I MIGHT NEED IT IN THE FUTURE OR SOMETHING
+/**int BoardRepository::getColumnCallback(void *data, int numberOfColumns, char **fieldValues, char **columnNames) {
     Column *column = static_cast<Column *>(data);
     vector<std::string> values;
     for (int i = 0; i < numberOfColumns; i++) {
@@ -386,6 +407,20 @@ int BoardRepository::getColumnCallback(void *data, int numberOfColumns, char **f
     column->setID(id);
     column->setName(title);
     column->setPos(position);
+    return 0;
+}*/
+
+int BoardRepository::getColumnsCallback(void *data, int numberOfColumns, char **fieldValues, char **columnNames) {
+    vector<Column> *columns = static_cast<vector<Column> *>(data);
+    vector<std::string> values;
+    for (int i = 0; i < numberOfColumns; i++) {
+        values.push_back(*(fieldValues++));
+    }
+    int id = std::stoi(values[0]);
+    string title = values[1];
+    int position = std::stoi(values[2]);
+    Column temp(id, title, position);
+    columns->push_back(temp);
     return 0;
 }
 
