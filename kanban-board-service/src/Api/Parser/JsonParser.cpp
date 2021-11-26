@@ -89,7 +89,6 @@ string JsonParser::convertToApiString(Item &item) {
 }
 
 string JsonParser::convertToApiString(std::vector<Item> &items) {
-    string result = EMPTY_JSON;
     Document document(kObjectType);
     Value jsonItems(kArrayType);
     for (Item const &i : items) {

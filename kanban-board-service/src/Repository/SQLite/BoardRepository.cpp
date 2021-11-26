@@ -85,16 +85,21 @@ std::vector<Column> BoardRepository::getColumns() {
     int answer = sqlite3_exec(database, sqlSelect.c_str(), BoardRepository::getColumnsCallback, columns, &errorMessage);
     handleSQLError(answer, errorMessage);
 
-    for (Column c : tempCols) {
-        vector<Item> tempItems = getItems(c.getId());
-        for (auto item : tempItems) {
-            c.addItem(item);
-        }
-    }
-
-    if (answer != SQLITE_OK) {
+    if (answer != SQLITE_OK || tempCols.size() == 0) {
         vector<Column> emptyVector;
         return emptyVector;
+    }
+    for (int i = 0; i < tempCols.size(); i++) {
+        cout << "checking column " << tempCols[i].getName() << endl;
+        vector<Item> tempItems = getItems(tempCols[i].getId());
+        for (auto item : tempItems) {
+            cout << "item found: " << item.getTitle() << endl;
+            tempCols[i].addItem(item);
+        }
+    }
+    cout << "got all them columns" << endl;
+    for (Column c : tempCols) {
+        cout << "column " << c.getName() << " has " << to_string(c.getItems().size()) << " items" << endl;
     }
     return tempCols;
 }
